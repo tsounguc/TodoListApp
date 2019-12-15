@@ -47,12 +47,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         switch (view.getId()){
             case R.id.add_btn:
                 String itemEntered = editText.getText().toString();
-                arrayAdapter.add(itemEntered);
-                editText.setText("");
-
-                FileHelper.writeData(arrayList, this);
-
-                Toast.makeText(this, "Item Added", Toast.LENGTH_SHORT).show();
+                if(itemEntered.isEmpty()){
+                    Toast.makeText(this, "Please Entered Item", Toast.LENGTH_SHORT).show();
+                }
+                if(!itemEntered.isEmpty()) {
+                    arrayAdapter.add(itemEntered);
+                    editText.setText("");
+                    FileHelper.writeData(arrayList, this);
+                    Toast.makeText(this, "Item Added", Toast.LENGTH_SHORT).show();
+                }
                 break;
         }
     }
