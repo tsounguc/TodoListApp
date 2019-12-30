@@ -2,7 +2,9 @@ package mail.gvsu.edu.todolistapp;
 
 import android.content.Context;
 import android.util.Log;
+import android.view.GestureDetector;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -10,6 +12,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
 import org.w3c.dom.Text;
@@ -19,11 +22,12 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 
-public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.MyViewHolder> {
+public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.MyViewHolder> implements ItemTouchHelperAdapter {
 
     private static final String TAG = "RecyclerAdapter";
     private ArrayList<String> itemsEntered;
     private Context mContext;
+    private ItemTouchHelper itemTouchHelper;
 //    int count = 0;
 
 
@@ -31,6 +35,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.MyView
         this.itemsEntered = itemsEntered;
         this.mContext = mContext;
     }
+
 
     @NonNull
     @Override
@@ -67,15 +72,78 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.MyView
         return itemsEntered.size();
     }
 
-    public class MyViewHolder extends RecyclerView.ViewHolder{
+    @Override
+    public void onItemMoved(int fromPosition, int toPosition) {
+        String item = itemsEntered.get(fromPosition);
+        itemsEntered.remove(fromPosition);
+        itemsEntered.add(toPosition,item);
+        FileHelper.writeData(itemsEntered, mContext);
+        notifyItemMoved(fromPosition, toPosition);
+    }
+
+    @Override
+    public void onItemSwiped(int position) {
+        itemsEntered.remove(position);
+        FileHelper.writeData(itemsEntered, mContext);
+        notifyItemRemoved(position);
+    }
+
+    public void setItemTouchHelper(ItemTouchHelper itemTouchHelper){
+        this.itemTouchHelper = itemTouchHelper;
+    }
+
+    public class MyViewHolder extends RecyclerView.ViewHolder implements
+            View.OnTouchListener, GestureDetector.OnGestureListener {
         TextView textView;
         TextView dateTextView;
         ConstraintLayout parentLayout;
+        GestureDetector gestureDetector;
+
         public MyViewHolder(@NonNull View itemView) {
             super(itemView);
             textView = itemView.findViewById(R.id.Item);
             dateTextView = itemView.findViewById(R.id.date);
             parentLayout = itemView.findViewById(R.id.parent_layout);
+            gestureDetector = new GestureDetector(itemView.getContext(), this);
+//            itemView.setOnClickListener(this);
+            itemView.setOnTouchListener(this);
+        }
+
+        @Override
+        public boolean onDown(MotionEvent motionEvent) {
+            return false;
+        }
+
+        @Override
+        public void onShowPress(MotionEvent motionEvent) {
+
+        }
+
+        @Override
+        public boolean onSingleTapUp(MotionEvent motionEvent) {
+            return false;
+        }
+
+        @Override
+        public boolean onScroll(MotionEvent motionEvent, MotionEvent motionEvent1, float v, float v1) {
+            return false;
+        }
+
+        @Override
+        public void onLongPress(MotionEvent motionEvent) {
+            itemTouchHelper.startDrag(this);
+        }
+
+        @Override
+        public boolean onFling(MotionEvent motionEvent, MotionEvent motionEvent1, float v, float v1) {
+            return false;
+        }
+
+
+        @Override
+        public boolean onTouch(View view, MotionEvent motionEvent) {
+            gestureDetector.onTouchEvent(motionEvent);
+            return true;
         }
     }
 }

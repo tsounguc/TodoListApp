@@ -61,7 +61,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         // Read data and store in itemsEntered
         itemsEntered = FileHelper.readData(this);
         recyclerAdapter = new RecyclerAdapter(itemsEntered, this);
-        new ItemTouchHelper(itemTouchHelperCallBack).attachToRecyclerView(recyclerView);
+//        new ItemTouchHelper(itemTouchHelperCallBack).attachToRecyclerView(recyclerView);
+        ItemTouchHelper.Callback callback = new MyItemTouchHelper(recyclerAdapter);
+        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(callback);
+        recyclerAdapter.setItemTouchHelper(itemTouchHelper);
+        itemTouchHelper.attachToRecyclerView(recyclerView);
         recyclerView.setAdapter(recyclerAdapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
@@ -95,18 +99,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         Toast.makeText(this, "Deleted", Toast.LENGTH_SHORT).show();
     }
 
-    ItemTouchHelper.SimpleCallback itemTouchHelperCallBack = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.RIGHT | ItemTouchHelper.LEFT) {
-        @Override
-        public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
-            return false;
-        }
-
-        @Override
-        public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
-            itemsEntered.remove(viewHolder.getAdapterPosition());
-            FileHelper.writeData(itemsEntered, recyclerView.getContext());
-            recyclerAdapter.notifyDataSetChanged();
-
-        }
-    };
+//    ItemTouchHelper.SimpleCallback itemTouchHelperCallBack = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.RIGHT | ItemTouchHelper.LEFT) {
+//        @Override
+//        public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
+//            return false;
+//        }
+//
+//        @Override
+//        public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
+//            itemsEntered.remove(viewHolder.getAdapterPosition());
+//            FileHelper.writeData(itemsEntered, recyclerView.getContext());
+//            recyclerAdapter.notifyDataSetChanged();
+//
+//        }
+//    };
 }
